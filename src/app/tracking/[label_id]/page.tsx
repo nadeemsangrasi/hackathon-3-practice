@@ -1,11 +1,10 @@
 import TrackingCard from "@/components/shared/TrackingCard";
 import axios from "axios";
-export const dynamic = "force-dynamic";
 
 const trackOrder = async (label_id: string) => {
   try {
     const response = await axios.get(
-      `http://localhost:3000/api/shipengine/labels/${label_id}/track`,
+      `https://hackathon-3-practice.vercel.app/api/shipengine/labels/${label_id}/track`,
       {
         headers: {
           "Content-Type": "application/json",
