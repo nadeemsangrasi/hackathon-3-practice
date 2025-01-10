@@ -1,5 +1,6 @@
 import TrackingCard from "@/components/shared/TrackingCard";
 import axios from "axios";
+export const dynamic = "force-dynamic";
 
 const trackOrder = async (label_id: string) => {
   try {
