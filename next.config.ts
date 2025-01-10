@@ -1,35 +1,27 @@
 import type { NextConfig } from "next";
-import { createProxyMiddleware } from "http-proxy-middleware";
 
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
         source: "/api/shipengine/:path*",
-        destination: "https://api.shipengine.com/v1/:path*", // Proxy to ShipEngine API
+        destination: "https://api.shipengine.com/v1/:path*",
       },
     ];
   },
-  webpackDevMiddleware: (devServer) => {
-    if (!devServer) {
-      return devServer;
-    }
-
-    devServer.app.use(
-      "/api/shipengine",
-      createProxyMiddleware({
-        target: "https://api.shipengine.com",
-        changeOrigin: true,
-        secure: false,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "API-Key": process.env.NEXT_PUBLIC_SHIPENGINE_API_KEY! || "",
-        },
-        pathRewrite: { "^/api/shipengine": "" },
-      })
-    );
-
-    return devServer;
+  async headers() {
+    return [
+      {
+        source: "/api/shipengine/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          {
+            key: "API-Key",
+            value: process.env.NEXT_PUBLIC_SHIPENGINE_API_KEY || "",
+          },
+        ],
+      },
+    ];
   },
   images: {
     remotePatterns: [

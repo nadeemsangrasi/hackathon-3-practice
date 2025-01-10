@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/card";
 import ShipmentRatesCard, { ShipmentCardProps } from "./ShipmentRatesCard";
 import LabelCard from "./LabelCard";
+import Loader from "./Loader";
 
 const formSchema = z.object({
   rate_options: z.object({
@@ -227,7 +228,6 @@ export default function ShipmentForm() {
         return;
       }
       setShipmentLabels(response.data);
-      console.log(response.data);
     } catch (err) {
       const error = err as AxiosError;
       if (error.response) {
@@ -248,397 +248,435 @@ export default function ShipmentForm() {
       setLoading(false);
     }
   };
-  return (
+  return loading ? (
+    // Full screen loader
+    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <Loader text="Loading..." />
+    </div>
+  ) : (
     <>
       {shipmentRates.length === 0 && (
         <div className="space-y-4 px-8 mt-8 w-full  md:max-w-[60%] mx-auto">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create Shiping Rates</CardTitle>
-                  <CardDescription>
-                    Enter the details for your shipment.
-                  </CardDescription>
-                </CardHeader>
+          {loading ? (
+            <>
+              <Loader text="Loading..." />
+            </>
+          ) : (
+            <>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
+                >
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Create Shiping Rates</CardTitle>
+                      <CardDescription>
+                        Enter the details for your shipment.
+                      </CardDescription>
+                    </CardHeader>
 
-                <CardContent>
-                  <div className="space-y-8">
-                    {/* Ship To Address */}
-                    <div>
-                      <h3 className="text-lg font-medium">Ship To Address</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="John Doe" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone</FormLabel>
-                              <FormControl>
-                                <Input placeholder="222-333-4444" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.company_name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Company Name (Optional)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Company Inc." {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.address_line1"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Address</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="1600 Pennsylvania Avenue NW"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.city_locality"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>City</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Washington" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.state_province"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>State</FormLabel>
-                              <FormControl>
-                                <Input placeholder="DC" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.postal_code"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Postal Code</FormLabel>
-                              <FormControl>
-                                <Input placeholder="20500" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.country_code"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Country Code</FormLabel>
-                              <FormControl>
-                                <Input placeholder="US" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.ship_to.address_residential_indicator"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Residential Address?</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select..." />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="yes">Yes</SelectItem>
-                                  <SelectItem value="no">No</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Toggle for Ship From Address */}
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="show-ship-from"
-                        checked={showShipFrom}
-                        onCheckedChange={setShowShipFrom}
-                      />
-                      <label htmlFor="show-ship-from">
-                        Show Ship From Address
-                      </label>
-                    </div>
-
-                    {/* Ship From Address */}
-                    {showShipFrom && (
-                      <div>
-                        <h3 className="text-lg font-medium">
-                          Ship From Address
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.name"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Name</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="ShipEngine Team"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.phone"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Phone</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="222-333-4444"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.company_name"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Company Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="ShipEngine" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.address_line1"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Address</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="4301 Bull Creek Road"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.city_locality"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>City</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Austin" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.state_province"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>State</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="TX" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.postal_code"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Postal Code</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="78731" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.country_code"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Country Code</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="US" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="shipment.ship_from.address_residential_indicator"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Residential Address?</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
+                    <CardContent>
+                      <div className="space-y-8">
+                        {/* Ship To Address */}
+                        <div>
+                          <h3 className="text-lg font-medium">
+                            Ship To Address
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Name</FormLabel>
                                   <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select..." />
-                                    </SelectTrigger>
+                                    <Input placeholder="John Doe" {...field} />
                                   </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="yes">Yes</SelectItem>
-                                    <SelectItem value="no">No</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.phone"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Phone</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="222-333-4444"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.company_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Company Name (Optional)</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Company Inc."
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.address_line1"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Address</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="1600 Pennsylvania Avenue NW"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.city_locality"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>City</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Washington"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.state_province"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>State</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="DC" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.postal_code"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Postal Code</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="20500" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.country_code"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Country Code</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="US" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.ship_to.address_residential_indicator"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Residential Address?</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select..." />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="yes">Yes</SelectItem>
+                                      <SelectItem value="no">No</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Toggle for Ship From Address */}
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="show-ship-from"
+                            checked={showShipFrom}
+                            onCheckedChange={setShowShipFrom}
                           />
+                          <label htmlFor="show-ship-from">
+                            Show Ship From Address
+                          </label>
+                        </div>
+
+                        {/* Ship From Address */}
+                        {showShipFrom && (
+                          <div>
+                            <h3 className="text-lg font-medium">
+                              Ship From Address
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="ShipEngine Team"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.phone"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Phone</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="222-333-4444"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.company_name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Company Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="ShipEngine"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.address_line1"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Address</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="4301 Bull Creek Road"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.city_locality"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>City</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Austin" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.state_province"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>State</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="TX" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.postal_code"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Postal Code</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="78731" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.country_code"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Country Code</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="US" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="shipment.ship_from.address_residential_indicator"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Residential Address?</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select..." />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Package Details */}
+                        <div>
+                          <h3 className="text-lg font-medium">
+                            Package Details
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="shipment.packages.0.package_code"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Package Code</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.packages.0.weight.value"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Weight Value</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          parseFloat(e.target.value)
+                                        )
+                                      }
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="shipment.packages.0.weight.unit"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Weight Unit</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select unit..." />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="ounce">
+                                        Ounce
+                                      </SelectItem>
+                                      <SelectItem value="pound">
+                                        Pound
+                                      </SelectItem>
+                                      <SelectItem value="gram">Gram</SelectItem>
+                                      <SelectItem value="kilogram">
+                                        Kilogram
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
                         </div>
                       </div>
-                    )}
-
-                    {/* Package Details */}
-                    <div>
-                      <h3 className="text-lg font-medium">Package Details</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="shipment.packages.0.package_code"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Package Code</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.packages.0.weight.value"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Weight Value</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(parseFloat(e.target.value))
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="shipment.packages.0.weight.unit"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Weight Unit</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select unit..." />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="ounce">Ounce</SelectItem>
-                                  <SelectItem value="pound">Pound</SelectItem>
-                                  <SelectItem value="gram">Gram</SelectItem>
-                                  <SelectItem value="kilogram">
-                                    Kilogram
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              {shipmentRates.length == 0 && (
-                <Button type="submit">
-                  {" "}
-                  {loading ? "loading..." : "Submit Shipment"}{" "}
-                </Button>
-              )}
-            </form>
-          </Form>
+                    </CardContent>
+                  </Card>
+                  {shipmentRates.length == 0 && (
+                    <Button type="submit">
+                      {" "}
+                      {loading ? "loading..." : "Submit Shipment"}{" "}
+                    </Button>
+                  )}
+                </form>
+              </Form>
+            </>
+          )}
         </div>
       )}
 
