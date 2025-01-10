@@ -205,7 +205,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
 ### Generating Labels
 
-#### Step 2: Call this endpoint with rate ID to generate labels
+#### Step 3: Call this endpoint with rate ID to generate labels
 
 Endpoint `api/shipengine/labels/rates/:rate_id`:
 
@@ -252,7 +252,7 @@ const generateShipmentLabel = async (rateId: string) => {
 
 ### Tracking Shipments
 
-#### Step 3: Call tracking API endpoint with label ID
+#### Step 4: Call tracking API endpoint with label ID
 
 In test mode, ShipEngine will not track shipments.
 
