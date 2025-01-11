@@ -1,4 +1,4 @@
-# Easy Guide to ShipEngine with Next.js (Without Creating Custom APIs and ShipEngine SDK)
+# Easy Guide to ShipEngine with Next.js (Without Creating Custom APIs or ShipEngine SDK)
 
 ## Table of Contents
 
