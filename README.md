@@ -46,14 +46,6 @@ Make sure you have an active internet connection for installation and subsequent
 npx create-next-app@latest my-app
 ```
 
-#### Step 2: Install ShipEngine
-
-```bash
-npm install shipengine
-```
-
----
-
 ## Setting Up ShipEngine
 
 ### Getting Your Test API Key
